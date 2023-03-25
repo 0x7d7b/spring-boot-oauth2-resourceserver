@@ -5,6 +5,7 @@
 //DEPS org.springframework.boot:spring-boot-dependencies:3.0.5@pom
 //DEPS org.springframework.boot:spring-boot-starter-web
 //DEPS org.springframework.boot:spring-boot-starter-security
+//DEPS org.springframework.boot:spring-boot-starter-actuator
 //DEPS org.springframework.security:spring-security-oauth2-jose
 //DEPS org.springframework.security:spring-security-oauth2-resource-server
 
@@ -13,6 +14,8 @@
 package demo;
 
 import org.springframework.boot.Banner;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +28,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @SpringBootApplication
 @RestController
@@ -39,6 +43,13 @@ public class Application {
                 .sources(Application.class)
                 .main(Application.class)
                 .run(args);
+    }
+
+    @Bean
+    public SecurityFilterChain healthFilterChain(HttpSecurity http) throws Exception {
+        return http.securityMatcher(EndpointRequest.to(HealthEndpoint.class))
+                .authorizeHttpRequests((requests) -> requests.anyRequest().permitAll())
+                .build();
     }
 
     @Bean
